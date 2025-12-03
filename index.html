@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRI: Magnetic Resonance Imaging - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeInDown 1s ease;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .tagline {
+            font-size: 1.1em;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .mri-machine {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(180deg, #e0e0e0 0%, #ffffff 50%, #e0e0e0 100%);
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mri-bore {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .magnetic-field {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 123, 255, 0.5),
+                           0 0 40px rgba(0, 123, 255, 0.3),
+                           0 0 60px rgba(0, 123, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(0, 123, 255, 0.8),
+                           0 0 60px rgba(0, 123, 255, 0.5),
+                           0 0 90px rgba(0, 123, 255, 0.3);
+            }
+        }
+
+        .hydrogen-atoms {
+            position: relative;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .atom {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #00ffff 0%, #0088ff 100%);
+            border-radius: 50%;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .atom.aligned {
+            animation: spin 2s linear infinite, float 3s ease-in-out infinite;
+        }
+
+        .atom::after {
+            content: 'H';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-btn:active {
+            transform: scale(0.98);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 0 30px rgba(245, 87, 108, 0.5);
+        }
+
+        .status-indicator {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-indicator.active {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .em-spectrum {
+            display: flex;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .spectrum-band {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #000;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .spectrum-band:hover {
+            transform: scaleY(1.1);
+            z-index: 10;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .info-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .info-card p {
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        .wave-visualization {
+            position: relative;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 255, 255, 0.3) 25%, 
+                transparent 50%, 
+                rgba(0, 255, 255, 0.3) 75%, 
+                transparent 100%);
+            animation: wave-move 3s linear infinite;
+        }
+
+        @keyframes wave-move {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .hydrogen-atoms {
+                gap: 15px;
+            }
+            
+            .atom {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧲 MRI: MAGNETIC RESONANCE IMAGING 🧲</h1>
+            <p class="subtitle">Understanding How We See Inside the Human Body</p>
+            <p class="tagline">No Surgery. No Radiation. Just Pure Physics Magic. ✨</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2>🏥 The MRI Machine</h2>
+                <div class="mri-machine">
+                    <div class="mri-bore">
+                        <div class="magnetic-field"></div>
+                    </div>
+                </div>
+                <div class="status-indicator" id="magnetStatus">
+                    Magnetic Field: INACTIVE
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚛️ Hydrogen Atoms in Your Body</h2>
+                <div class="hydrogen-atoms" id="hydrogenContainer">
+                    <div class="atom"></div>
+                    <div class="atom"></div>
+                    <div class="atom"></div>
+                    <div class="atom"></div>
+                    <div class="atom"></div>
+                </div>
+                <div class="control-panel">
+                    <button class="control-btn" id="magnetBtn" onclick="toggleMagnet()">
+                        ACTIVATE MAGNETIC FIELD
+                    </button>
+                    <button class="control-btn" id="rfBtn" onclick="toggleRF()" disabled>
+                        SEND RADIO PULSE
+                    </button>
+                    <button class="control-btn" onclick="resetDemo()">
+                        RESET DEMO
+                    </button>
+                </div>
+            </div>
+
+            <div class="card full-width">
+                <h2>📡 Radio Wave Visualization</h2>
+                <div class="wave-visualization">
+                    <div class="wave" id="radioWave" style="display: none;"></div>
+                </div>
+                <p style="text-align: center; font-size: 1.1em; margin-top: 15px;">
+                    Radio waves (non-ionizing EM radiation) interact with aligned hydrogen atoms
+                </p>
+            </div>
+
+            <div class="card full-width">
+                <h2>🌈 Electromagnetic Spectrum</h2>
+                <div class="em-spectrum">
+                    <div class="spectrum-band" style="background: #ff6b6b;" title="Radio Waves">RADIO</div>
+                    <div class="spectrum-band" style="background: #ff922b;" title="Microwaves">MICRO</div>
+                    <div class="spectrum-band" style="background: #ffd43b;" title="Infrared">IR</div>
+                    <div class="spectrum-band" style="background: linear-gradient(to right, red, orange, yellow, green, blue, violet);" title="Visible Light">VISIBLE</div>
+                    <div class="spectrum-band" style="background: #a78bfa;" title="Ultraviolet">UV</div>
+                    <div class="spectrum-band" style="background: #e0e0e0;" title="X-Rays">X-RAY</div>
+                    <div class="spectrum-band" style="background: #333; color: #fff;" title="Gamma Rays">GAMMA</div>
+                </div>
+                <p style="text-align: center; margin-top: 15px; font-size: 1.1em;">
+                    MRI uses RADIO WAVES (lowest energy, non-ionizing) - completely safe! 💯
+                </p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🧲 Step 1: Magnetic Field</h3>
+                <p>Powerful magnets (1.5-3 Tesla) align hydrogen atoms in your body. Your body is ~60% water (H₂O), giving us millions of hydrogen atoms to work with!</p>
+            </div>
+
+            <div class="info-card">
+                <h3>📻 Step 2: Radio Pulse</h3>
+                <p>Radio waves knock hydrogen atoms out of alignment. This is the SAME type of radiation as your FM radio - completely non-ionizing and safe!</p>
+            </div>
+
+            <div class="info-card">
+                <h3>📡 Step 3: Echo Detection</h3>
+                <p>Atoms snap back to alignment and release energy. Different tissues (brain, muscle, tumors) release energy at different rates - that's how we create images!</p>
+            </div>
+
+            <div class="info-card">
+                <h3>💻 Step 4: Image Creation</h3>
+                <p>Computers process these signals into detailed 3D images. AI is now making this process faster and more accurate than ever before!</p>
+            </div>
+        </div>
+
+        <footer>
+            <h2>🚀 Why MRI Hits Different</h2>
+            <p style="font-size: 1.2em; margin: 20px 0; line-height: 1.8;">
+                ✅ No ionizing radiation (unlike X-rays/CT scans)<br>
+                ✅ Incredible soft tissue detail<br>
+                ✅ Can detect diseases YEARS before symptoms<br>
+                ✅ AI-powered analysis predicting Alzheimer's 5-10 years early<br>
+                ✅ Literally changing lives through early detection
+            </p>
+            <p style="margin-top: 20px; font-style: italic; opacity: 0.8;">
+                This is the intersection of physics, biology, and computer science creating medical magic. 💙✨
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let magnetActive = false;
+        let rfActive = false;
+
+        function toggleMagnet() {
+            magnetActive = !magnetActive;
+            const magnetBtn = document.getElementById('magnetBtn');
+            const rfBtn = document.getElementById('rfBtn');
+            const magnetStatus = document.getElementById('magnetStatus');
+            const atoms = document.querySelectorAll('.atom');
+
+            if (magnetActive) {
+                magnetBtn.textContent = 'DEACTIVATE MAGNETIC FIELD';
+                magnetBtn.classList.add('active');
+                magnetStatus.textContent = 'Magnetic Field: ACTIVE (1.5 Tesla)';
+                magnetStatus.classList.add('active');
+                rfBtn.disabled = false;
+                
+                atoms.forEach(atom => {
+                    atom.classList.add('aligned');
+                });
+            } else {
+                magnetBtn.textContent = 'ACTIVATE MAGNETIC FIELD';
+                magnetBtn.classList.remove('active');
+                magnetStatus.textContent = 'Magnetic Field: INACTIVE';
+                magnetStatus.classList.remove('active');
+                rfBtn.disabled = true;
+                
+                atoms.forEach(atom => {
+                    atom.classList.remove('aligned');
+                });
+            }
+        }
+
+        function toggleRF() {
+            rfActive = !rfActive;
+            const rfBtn = document.getElementById('rfBtn');
+            const radioWave = document.getElementById('radioWave');
+
+            if (rfActive) {
+                rfBtn.textContent = 'STOP RADIO PULSE';
+                rfBtn.classList.add('active');
+                radioWave.style.display = 'block';
+                
+                // Simulate atoms getting excited
+                const atoms = document.querySelectorAll('.atom');
+                atoms.forEach((atom, index) => {
+                    setTimeout(() => {
+                        atom.style.transform = 'scale(1.3)';
+                        atom.style.boxShadow = '0 0 40px rgba(255, 0, 255, 0.8)';
+                        setTimeout(() => {
+                            atom.style.transform = 'scale(1)';
+                            atom.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.5)';
+                        }, 500);
+                    }, index * 100);
+                });
+            } else {
+                rfBtn.textContent = 'SEND RADIO PULSE';
+                rfBtn.classList.remove('active');
+                radioWave.style.display = 'none';
+            }
+        }
+
+        function resetDemo() {
+            magnetActive = false;
+            rfActive = false;
+            
+            const magnetBtn = document.getElementById('magnetBtn');
+            const rfBtn = document.getElementById('rfBtn');
+            const magnetStatus = document.getElementById('magnetStatus');
+            const radioWave = document.getElementById('radioWave');
+            const atoms = document.querySelectorAll('.atom');
+
+            magnetBtn.textContent = 'ACTIVATE MAGNETIC FIELD';
+            magnetBtn.classList.remove('active');
+            rfBtn.textContent = 'SEND RADIO PULSE';
+            rfBtn.classList.remove('active');
+            rfBtn.disabled = true;
+            magnetStatus.textContent = 'Magnetic Field: INACTIVE';
+            magnetStatus.classList.remove('active');
+            radioWave.style.display = 'none';
+
+            atoms.forEach(atom => {
+                atom.classList.remove('aligned');
+                atom.style.transform = '';
+                atom.style.boxShadow = '';
+            });
+        }
+
+        // Add hover effects to spectrum bands
+        document.querySelectorAll('.spectrum-band').forEach(band => {
+            band.addEventListener('click', function() {
+                const title = this.getAttribute('title');
+                alert(`${title}\n\nMRI uses RADIO WAVES - the lowest energy, safest part of the EM spectrum. No ionizing radiation means no DNA damage! 💯`);
+            });
+        });
+
+        // Initialize page
+        console.log('🧲 MRI Demo Loaded! Ready to explore the science! 🚀');
+    </script>
+</body>
+</html>
